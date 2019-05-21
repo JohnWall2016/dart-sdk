@@ -520,6 +520,8 @@ if (is_win) {
     "/wd4005",  # Redefinition of macros for PRId64 etc.
     "/wd4311",  # Pointer truncation from PVOID to DWORD.
     "/wd4477",  # Format string requires wchar_t*
+
+    "/utf-8",   # Assume UTF-8 by default to avoid code page dependencies.
   ]
 } else {
   # Common GCC warning setup.
