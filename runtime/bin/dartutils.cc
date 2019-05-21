@@ -243,14 +243,18 @@ const char* DartUtils::RemoveScheme(const char* url) {
 
 char* DartUtils::DirName(const char* url) {
   while (*url == '\\' || *url == '/') url++;
-  char* slash = (char*)strrchr(url, '\\');
-  if (slash == NULL) {
-    slash = (char*)strrchr(url, '/');
+  const char* p = url;
+  const char* last_slash = NULL;
+  while (*p != NULL) {
+    if (*p == '\\' || *p == '/') {
+      last_slash = p;
+    }
+    p ++;
   }
-  if (slash == NULL) {
+  if (last_slash == NULL) {
     return strdup(url);
   } else {
-    return Utils::StrNDup(url, slash - url + 1);
+    return Utils::StrNDup(url, last_slash - url + 1);
   }
 }
 
