@@ -239,6 +239,23 @@ const char* DartUtils::RemoveScheme(const char* url) {
   }
 }
 
+#if defined(HOST_OS_WINDOWS)
+
+char* DartUtils::DirName(const char* url) {
+  while (*url == '\\' || *url == '/') url++;
+  char* slash = (char*)strrchr(url, '\\');
+  if (slash == NULL) {
+    slash = (char*)strrchr(url, '/');
+  }
+  if (slash == NULL) {
+    return strdup(url);
+  } else {
+    return Utils::StrNDup(url, slash - url + 1);
+  }
+}
+
+#else
+
 char* DartUtils::DirName(const char* url) {
   const char* slash = strrchr(url, File::PathSeparator()[0]);
   if (slash == NULL) {
@@ -247,6 +264,8 @@ char* DartUtils::DirName(const char* url) {
     return Utils::StrNDup(url, slash - url + 1);
   }
 }
+
+#endif
 
 void* DartUtils::OpenFile(const char* name, bool write) {
   File* file =
