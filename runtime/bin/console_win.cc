@@ -34,7 +34,7 @@ class ConsoleWin {
     SetConsoleCtrlHandler(SignalHandler, TRUE);
 
     // Set both the input and output code pages to UTF8.
-    const int output_cp = GetConsoleOutputCP();
+    /*const int output_cp = GetConsoleOutputCP();
     const int input_cp = GetConsoleCP();
     if (output_cp != CP_UTF8) {
       SetConsoleOutputCP(CP_UTF8);
@@ -43,7 +43,7 @@ class ConsoleWin {
     if (input_cp != CP_UTF8) {
       SetConsoleCP(CP_UTF8);
       saved_input_cp_ = input_cp;
-    }
+    }*/
 
     // Try to set the bits for ANSI support, but swallow any failures.
     saved_stdout_mode_ =

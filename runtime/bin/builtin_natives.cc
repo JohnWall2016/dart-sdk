@@ -91,9 +91,23 @@ void FUNCTION_NAME(Builtin_PrintString)(Dart_NativeArguments args) {
     Dart_PropagateError(result);
   }
 
+#if defined(HOST_OS_WINDOWS)
+  HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (stdout_handle == INVALID_HANDLE_VALUE || stdout_handle == NULL) {
+    intptr_t res = fwrite(chars, 1, length, stdout);
+    ASSERT(res == length);
+  } else {
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, (const char*)chars, length, NULL, 0);
+    wchar_t* wbuf = new wchar_t[wlen];
+    MultiByteToWideChar(CP_UTF8, 0, (const char*)chars, length, wbuf, wlen);
+    WriteConsoleW(stdout_handle, wbuf, wlen, NULL, NULL);
+    delete[] wbuf;
+  }
+#else
   // Uses fwrite to support printing NUL bytes.
   intptr_t res = fwrite(chars, 1, length, stdout);
   ASSERT(res == length);
+#endif
   fputs("\n", stdout);
   fflush(stdout);
   if (ShouldCaptureStdout()) {
