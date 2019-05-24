@@ -19,7 +19,7 @@ namespace bin {
 void FormatMessageIntoBuffer(DWORD code, wchar_t* buffer, int buffer_length) {
   DWORD message_size = FormatMessageW(
       FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, code,
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, buffer_length, NULL);
+      MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), buffer, buffer_length, NULL);
   if (message_size == 0) {
     if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
       Log::PrintErr("FormatMessage failed for error code %d (error %d)\n", code,
