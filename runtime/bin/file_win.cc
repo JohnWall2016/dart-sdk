@@ -128,30 +128,25 @@ int64_t File::Write(const void* buffer, int64_t num_bytes) {
   int fd = handle_->fd();
   ASSERT(fd >= 0);
   HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
-  DWORD written = 0;
-  BOOL result = WriteFile(handle, buffer, num_bytes, &written, NULL);
-  if (!result) {
-    return -1;
-  }
   DWORD mode;
-  int64_t bytes_written = written;
+  int64_t bytes_written = 0;
   if (GetConsoleMode(handle, &mode)) {
-    // If `handle` is for a console, then `written` may refer to the number of
-    // characters printed to the screen rather than the number of bytes of the
-    // buffer that were actually consumed. To compute the number of bytes that
-    // were actually consumed, we convert the buffer to a wchar_t using the
-    // console's current code page, filling as many characters as were
-    // printed, and then convert that many characters back to the encoding for
-    // the code page, which gives the number of bytes of `buffer` used to
-    // generate the characters that were printed.
-    wchar_t* wide = new wchar_t[written];
-    int cp = GetConsoleOutputCP();
-    MultiByteToWideChar(cp, 0, reinterpret_cast<const char*>(buffer), -1, wide,
-                        written);
-    int buffer_len =
-        WideCharToMultiByte(cp, 0, wide, written, NULL, 0, NULL, NULL);
-    delete wide;
-    bytes_written = buffer_len;
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, (const char*)buffer, num_bytes, NULL, 0);
+    wchar_t* wbuf = new wchar_t[wlen];
+    MultiByteToWideChar(CP_UTF8, 0, (const char*)buffer, num_bytes, wbuf, wlen);
+    BOOL result = WriteConsoleW(handle, wbuf, wlen, NULL, NULL);
+    if (!result) {
+      return -1;
+    }
+    bytes_written = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, NULL, 0, NULL, NULL);
+    delete[] wbuf;
+  } else {
+    DWORD written = 0;
+    BOOL result = WriteFile(handle, buffer, num_bytes, &written, NULL);
+    if (!result) {
+      return -1;
+    }
+    bytes_written = written;
   }
   return bytes_written;
 }
